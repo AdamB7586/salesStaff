@@ -109,6 +109,7 @@ class SalesTeam{
      * @return array Returns and array of both 'day' and 'time' to get the next active staff member
      */
     protected function dayAndTime(){
+        $dateInfo = array();
         $dateInfo['day'] = date('l');
         $dateInfo['time'] = date('H:i:s');
         
@@ -158,7 +159,7 @@ class SalesTeam{
      */
     public function getStaffName($staffID){
         $staff = $this->db->select(self::STAFFTABLE, array('salesstaffid' => $staffID), array('fullname'));
-        if($staff){
+        if(!empty($staff)){
             return $staff['fullname'];
         }
         return false;
@@ -179,7 +180,7 @@ class SalesTeam{
      */
     public function viewHours(){
         $hours = $this->db->selectAll(self::STAFFHOURSTABLE);
-        if($hours){
+        if(!empty($hours)){
             foreach($hours as $a => $hour){
                 $hours[$a]['name'] = $this->getStaffName($hour['staffid']);
             }
