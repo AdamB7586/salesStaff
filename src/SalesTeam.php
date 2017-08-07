@@ -85,6 +85,7 @@ class SalesTeam{
      * @return int Returns the sales staff ID of the person who should receive this transaction/enquiry 
      */
     protected function numActiveStaffToday($type){
+        $data = array();
         $dateInfo = $this->dayAndTime();        
         $activestaff = $this->db->selectAll(self::STAFFHOURSTABLE, array(strtolower($dateInfo['day']) => array('>', $dateInfo['time']), 'holiday' => '0'));
         if($this->db->numRows() == 1){
@@ -217,10 +218,10 @@ class SalesTeam{
     }
     
     /**
-     * 
-     * @param type $current
-     * @param type $field
-     * @return type
+     * Updates the users to specify which user was last assigned
+     * @param int $current This should be the current user that was last assigned
+     * @param string $field The field that you are searching on for last assigned
+     * @return boolean If the information is updated will return true else return false
      */
     protected function updateLastUser($current, $field){
         $this->db->update(self::STAFFTABLE, array($field => 0));
@@ -228,9 +229,10 @@ class SalesTeam{
     }
     
     /**
-     * 
-     * @param type $name
-     * @param type $arguments
+     * Magic method call so that any number of methods can be called to check and update for last assigned
+     * @param string $name This should be the name of the method being called g.g lastSale(), lastTour(), etc or updateLastSale() or updateLastTour() 
+     * @param array $arguments Is should be any arguments being given to the methods e.g. updateLastSale(array($userID)) or updateLastSale(array(3));
+     * @return int|boolean If is a ching function will return the last user's assigned ID else if is an update method will return true or false if the database is updated or not 
      */
     public function __call($name, $arguments){
         $field = preg_replace("/[^a-zA-Z0-9]/", "", $name);
