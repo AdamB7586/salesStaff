@@ -12,11 +12,12 @@ class SalesTeamTest extends TestCase{
     
     public function setUp() {
         $this->db = new Database('', '', '', '', false, false, true, 'sqlite');
-        if(!self::$db->isConnected()){
+        if(!$this->db->isConnected()){
              $this->markTestSkipped(
                 'No local database connection is available'
             );
         }
+        $this->db->query(file_get_contents('./files/database/sales_staff.sql'));
         $this->salesTeam = new SalesTeam($this->db);
     }
     
