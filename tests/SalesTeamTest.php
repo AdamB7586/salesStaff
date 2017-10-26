@@ -19,9 +19,4 @@ class SalesTeamTest extends TestCase{
         }
         $this->salesTeam = new SalesTeam($this->db);
     }
-    
-    public static function tearDownAfterClass() {
-        $this->db = null;
-        $this->salesTeam = null;
-    }
 }
