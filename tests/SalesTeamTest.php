@@ -19,4 +19,8 @@ class SalesTeamTest extends TestCase{
         }
         $this->salesTeam = new SalesTeam($this->db);
     }
+    
+    public function test_count_number_of_sales_satff(){
+        $this->assertGreaterThanOrEqual(0, $this->salesTeam->numStaff());
+    }
 }
