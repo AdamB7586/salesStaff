@@ -11,7 +11,7 @@ class SalesTeamTest extends TestCase{
     protected $salesTeam;
     
     public function setUp() {
-        $this->db = new Database('', '', '', '', false, false, true, 'sqlite');
+        $this->db = new Database('localhost', 'username', 'password', 'staff', false, false, true, 'sqlite');
         if(!$this->db->isConnected()){
              $this->markTestSkipped(
                 'No local database connection is available'

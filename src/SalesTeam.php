@@ -5,7 +5,7 @@ use DBAL\Database;
 
 class SalesTeam{
     protected $db;
-    protected static $staffinfo;
+    protected $staffinfo;
     
     const STAFFTABLE = 'sales_staff';
     const STAFFHOURSTABLE = 'sales_staff_hours';
@@ -70,9 +70,9 @@ class SalesTeam{
     protected function getStaffInfo($where = '', $order = ''){        
         $staff = $this->db->select(self::STAFFTABLE, $where, '*', $order);
         if($staff['salesstaffid']){
-            self::$staffinfo = $staff;
-            self::$staffinfo['id'] = $staff['salesstaffid'];
-            return self::$staffinfo;
+            $this->staffinfo = $staff;
+            $this->staffinfo['id'] = $staff['salesstaffid'];
+            return $this->staffinfo;
         }
         else{
             return $this->staffDefault;
