@@ -31,26 +31,26 @@ class SalesTeam{
     /**
      * Gets the next active staff member 
      * @param string $type Should be set to either 'enquiry' or 'sale' the default is 'sale'
-     * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'salesstaffid'
+     * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'staffid'
      */
     public function getActiveStaff($type = 'sale'){       
         if($this->numStaff() >= 1){
             $activestaff = $this->numActiveStaffToday($type);
             $updateName = 'updateLast'.$type;
             if($activestaff['next'] >= 1){
-                $staff = $this->getStaffInfo(array('salesstaffid' => $activestaff['next']));
+                $staff = $this->getStaffInfo(array('staffid' => $activestaff['next']));
                 $this->$updateName($staff['id']);
                 return $staff;
             }
             else{ // Nobody active do them all
                 $lastMethod = 'last'.$type.'ID';
-                $staff = $this->getStaffInfo(array('salesstaffid' => array('>', $this->$lastMethod())), array('salesstaffid' => 'ASC'));
+                $staff = $this->getStaffInfo(array('staffid' => array('>', $this->$lastMethod())), array('staffid' => 'ASC'));
                 if($staff['id'] != $this->staffDefault['id']){ // Not the last one so do the next
                     $this->$updateName($staff['id']);
                     return $staff;
                 }
                 else{ // Last one so start from beginning
-                    $staff = $this->getStaffInfo('', array('salesstaffid' => 'ASC'));
+                    $staff = $this->getStaffInfo('', array('staffid' => 'ASC'));
                     $this->$updateName($staff['id']);
                     return $staff;
                 }
@@ -64,14 +64,14 @@ class SalesTeam{
     /**
      * Returns the staff information for the given variables
      * @param array $where Should be in the form of a where query e.g. array('active' => '1', etc)
-     * @param array $order Should be in the form of a order query e.g. array('salesstaffid' => 'ASC')
-     * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'salesstaffid'
+     * @param array $order Should be in the form of a order query e.g. array('staffid' => 'ASC')
+     * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'staffid'
      */
     protected function getStaffInfo($where = '', $order = ''){        
         $staff = $this->db->select(self::STAFFTABLE, $where, '*', $order);
-        if($staff['salesstaffid']){
+        if($staff['staffid']){
             $this->staffinfo = $staff;
-            $this->staffinfo['id'] = $staff['salesstaffid'];
+            $this->staffinfo['id'] = $staff['staffid'];
             return $this->staffinfo;
         }
         else{
@@ -150,7 +150,7 @@ class SalesTeam{
      * @return array|boolean If staff members exist will return array else will return false
      */
     public function listStaff(){
-        return $this->db->selectAll(self::STAFFTABLE, '', array('salesstaffid', 'fullname'));
+        return $this->db->selectAll(self::STAFFTABLE, '', array('staffid', 'fullname'));
     }
     
     /**
@@ -159,7 +159,7 @@ class SalesTeam{
      * @return string|boolean Returns the first name if the sales staff ID exists else returns false
      */
     public function getStaffName($staffID){
-        $staff = $this->db->select(self::STAFFTABLE, array('salesstaffid' => $staffID), array('fullname'));
+        $staff = $this->db->select(self::STAFFTABLE, array('staffid' => $staffID), array('fullname'));
         if(!empty($staff)){
             return $staff['fullname'];
         }
@@ -213,8 +213,8 @@ class SalesTeam{
      * @return int This will be the sales staff ID
      */
     protected function getLastID($field){
-        $last = $this->db->select(self::STAFFTABLE, array($field => 1), array('salesstaffid'));
-        return $last['salesstaffid'];
+        $last = $this->db->select(self::STAFFTABLE, array($field => 1), array('staffid'));
+        return $last['staffid'];
     }
     
     /**
@@ -225,7 +225,7 @@ class SalesTeam{
      */
     protected function updateLastUser($current, $field){
         $this->db->update(self::STAFFTABLE, array($field => 0));
-        return $this->db->update(self::STAFFTABLE, array($field => 1), array('salesstaffid' => $current));
+        return $this->db->update(self::STAFFTABLE, array($field => 1), array('staffid' => $current));
     }
     
     /**
