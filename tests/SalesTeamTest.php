@@ -11,14 +11,19 @@ class SalesTeamTest extends TestCase{
     protected $salesTeam;
     
     public function setUp() {
-        $this->db = new Database('localhost', 'username', 'password', 'staff', false, false, true, 'sqlite');
+        $this->db = new Database('localhost', 'root', '', 'staff', false, false, true, 'sqlite');
         if(!$this->db->isConnected()){
              $this->markTestSkipped(
                 'No local database connection is available'
             );
         }
-        $this->db->query(file_get_contents('./files/database/sales_staff.sql'));
+        $this->db->query(file_get_contents('./database/sales_staff.sql'));
         $this->salesTeam = new SalesTeam($this->db);
+    }
+    
+    protected function tearDown() {
+        $this->db = null;
+        $this->salesTeam = null;
     }
     
     public function test_count_number_of_sales_satff(){
