@@ -82,11 +82,45 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::getStaffInfo
      * @covers \Staff\SalesTeam::dayAndTime
      * @covers \Staff\SalesTeam::dayNo
+     * @covers \Staff\SalesTeam::getLastID
      * @covers \Staff\SalesTeam::__call
+     * @covers \Staff\SalesTeam::getLastID
+     * @covers \Staff\SalesTeam::updateLastUser
      */
     public function testGetActiveStaff(){
         $activeStaff = $this->salesTeam->getActiveStaff();
         $this->assertArrayHasKey('staffid', $activeStaff);
         $this->assertEquals(1, $activeStaff['staffid']);
+    }
+    
+    /**
+     * @covers \Staff\SalesTeam::viewHours
+     */
+    public function testViewHours(){
+        $this->markTestIncomplete();
+    }
+    
+    /**
+     * @covers \Staff\SalesTeam::updateHours
+     */
+    public function testUpdateHours(){
+        $this->markTestIncomplete();
+    }
+    
+    /**
+     * @covers \Staff\SalesTeam::__construct
+     * @covers \Staff\SalesTeam::getActiveStaff
+     * @covers \Staff\SalesTeam::numStaff
+     * @covers \Staff\SalesTeam::numActiveStaffToday
+     * @covers \Staff\SalesTeam::getStaffInfo
+     * @covers \Staff\SalesTeam::dayAndTime
+     * @covers \Staff\SalesTeam::dayNo
+     * @covers \Staff\SalesTeam::getLastID
+     * @covers \Staff\SalesTeam::__call
+     * @covers \Staff\SalesTeam::getLastID
+     * @covers \Staff\SalesTeam::updateLastUser
+     */
+    public function testDisableAllStaff(){
+        $this->markTestIncomplete();
     }
 }
