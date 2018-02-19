@@ -67,7 +67,7 @@ class SalesTeam{
      * @param array $order Should be in the form of a order query e.g. array('staffid' => 'ASC')
      * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'staffid'
      */
-    protected function getStaffInfo($where = '', $order = ''){        
+    protected function getStaffInfo($where = array(), $order = array()){
         $staff = $this->db->select(self::STAFFTABLE, $where, '*', $order);
         if($staff['staffid']){
             $this->staffinfo = $staff;
