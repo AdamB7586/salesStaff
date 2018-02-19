@@ -10,6 +10,9 @@ class SalesTeamTest extends TestCase{
     protected $db;
     protected $salesTeam;
     
+    /**
+     * @covers \Staff\SalesTeam::__construct
+     */
     public function setUp() {
         $this->db = new Database($GLOBALS['HOSTNAME'], $GLOBALS['USERNAME'], $GLOBALS['PASSWORD'], $GLOBALS['DATABASE']);
         if(!$this->db->isConnected()){
@@ -27,10 +30,16 @@ class SalesTeamTest extends TestCase{
         $this->salesTeam = null;
     }
     
+    /**
+     * @covers \Staff\SalesTeam::numStaff
+     */
     public function testCountNumberOfSalesStaff(){
         $this->assertGreaterThanOrEqual(0, $this->salesTeam->numStaff());
     }
     
+    /**
+     * @covers \Staff\SalesTeam::getStaffName
+     */
     public function testGetStaffName(){
         $this->assertEquals('George Michael', $this->salesTeam->getStaffName(2));
         $this->assertEquals('Amy Hope', $this->salesTeam->getStaffName(4));
