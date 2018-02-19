@@ -18,7 +18,7 @@ class SalesTeamTest extends TestCase{
             );
         }
         $this->db->query(file_get_contents('./database/sales_staff.sql'));
-        $this->db->query(file_get_contents('sample_/sales_staff.sql'));
+        $this->db->query(file_get_contents('sample_data/sales_staff.sql'));
         $this->salesTeam = new SalesTeam($this->db);
     }
     
