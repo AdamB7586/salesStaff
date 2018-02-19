@@ -50,7 +50,7 @@ class SalesTeam{
                     return $staff;
                 }
                 else{ // Last one so start from beginning
-                    $staff = $this->getStaffInfo('', array('staffid' => 'ASC'));
+                    $staff = $this->getStaffInfo([], array('staffid' => 'ASC'));
                     $this->$updateName($staff['id']);
                     return $staff;
                 }
@@ -114,12 +114,12 @@ class SalesTeam{
         $dateInfo['day'] = date('l');
         $dateInfo['time'] = date('H:i:s');
         
-        $getendtime = $this->db->select(self::STAFFHOURSTABLE, '', array(strtolower($dateInfo['day'])), array(strtolower($dateInfo['day']) => 'DESC'));
+        $getendtime = $this->db->select(self::STAFFHOURSTABLE, [], array(strtolower($dateInfo['day'])), array(strtolower($dateInfo['day']) => 'DESC'));
         $endtime = $getendtime[strtolower($dateInfo['day'])];
         if($dateInfo['time'] > $endtime){
             $dateInfo['day'] = $this->dayNo((date("N")+1));
             $dateInfo['time'] = "01:00:00";
-            $getendtime = $this->db->select(self::STAFFHOURSTABLE, '', array(strtolower($dateInfo['day'])), array(strtolower($dateInfo['day']) => 'DESC'));
+            $getendtime = $this->db->select(self::STAFFHOURSTABLE, [], array(strtolower($dateInfo['day'])), array(strtolower($dateInfo['day']) => 'DESC'));
             $endtime = $getendtime[strtolower($dateInfo['day'])];
         }
 
@@ -150,7 +150,7 @@ class SalesTeam{
      * @return array|boolean If staff members exist will return array else will return false
      */
     public function listStaff(){
-        return $this->db->selectAll(self::STAFFTABLE, '', array('staffid', 'fullname'));
+        return $this->db->selectAll(self::STAFFTABLE, [], array('staffid', 'fullname'));
     }
     
     /**
