@@ -16,4 +16,11 @@
             <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
+    
+    <php>
+        <var name="HOSTNAME" value="localhost"/>
+        <var name="USERNAME" value="root"/>
+        <var name="PASSWORD" value=""/>
+        <var name="DATABASE" value="sales_staff"/>
+    </php>
 </phpunit>
