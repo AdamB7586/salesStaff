@@ -50,8 +50,8 @@ class SalesTeamTest extends TestCase{
      */
     public function testListStaff(){
         $staff = $this->salesTeam->listStaff();
-        $this->assertArrayHasKey('id', $staff[0]);
+        $this->assertArrayHasKey('staffid', $staff[1]);
         $this->assertArrayHasKey('fullname', $staff[0]);
-        $this->assertEquals(3, $staff[2]['id']);
+        $this->assertEquals(3, $staff[2]['staffid']);
     }
 }
