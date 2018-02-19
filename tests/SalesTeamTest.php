@@ -31,6 +31,7 @@ class SalesTeamTest extends TestCase{
     }
     
     /**
+     * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::numStaff
      */
     public function testCountNumberOfSalesStaff(){
@@ -38,14 +39,17 @@ class SalesTeamTest extends TestCase{
     }
     
     /**
+     * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::getStaffName
      */
     public function testGetStaffName(){
         $this->assertEquals('George Michael', $this->salesTeam->getStaffName(2));
         $this->assertEquals('Amy Hope', $this->salesTeam->getStaffName(4));
+        $this->assertFalse($this->salesTeam->getStaffName(1526));
     }
     
     /**
+     * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::listStaff
      */
     public function testListStaff(){
@@ -53,5 +57,36 @@ class SalesTeamTest extends TestCase{
         $this->assertArrayHasKey('staffid', $staff[1]);
         $this->assertArrayHasKey('fullname', $staff[0]);
         $this->assertEquals(3, $staff[2]['staffid']);
+    }
+    
+    /**
+     * @covers \Staff\SalesTeam::__construct
+     * @covers \Staff\SalesTeam::getStaffHours
+     */
+    public function testGetStaffHours(){
+        $this->assertFalse($this->salesTeam->getStaffHours(52));
+        $staff_hours = $this->salesTeam->getStaffHours(3);
+        $this->assertArrayHasKey('monday', $staff_hours);
+        $this->assertEquals('19:00:00', $staff_hours['friday']);
+        
+        $second_staff_hours = $this->salesTeam->getStaffHours(2);
+        $this->assertArrayHasKey('wednesday', $second_staff_hours);
+        $this->assertEquals('17:00:00', $second_staff_hours['friday']);
+    }
+    
+    /**
+     * @covers \Staff\SalesTeam::__construct
+     * @covers \Staff\SalesTeam::getActiveStaff
+     * @covers \Staff\SalesTeam::numStaff
+     * @covers \Staff\SalesTeam::numActiveStaffToday
+     * @covers \Staff\SalesTeam::getStaffInfo
+     * @covers \Staff\SalesTeam::dayAndTime
+     * @covers \Staff\SalesTeam::dayNo
+     * @covers \Staff\SalesTeam::__call
+     */
+    public function testGetActiveStaff(){
+        $activeStaff = $this->salesTeam->getActiveStaff();
+        $this->assertArrayHasKey('staffid', $activeStaff);
+        $this->assertEquals(1, $activeStaff['staffid']);
     }
 }
