@@ -17,8 +17,8 @@ class SalesTeamTest extends TestCase{
                 'No local database connection is available'
             );
         }
-        $this->db->query(file_get_contents('./database/sales_staff.sql'));
-        $this->db->query(file_get_contents('sample_data/staff.sql'));
+        $this->db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/sales_staff.sql'));
+        $this->db->query(file_get_contents(dirname(__FILE__).'/sample_data/staff.sql'));
         $this->salesTeam = new SalesTeam($this->db);
     }
     
