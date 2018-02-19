@@ -44,4 +44,14 @@ class SalesTeamTest extends TestCase{
         $this->assertEquals('George Michael', $this->salesTeam->getStaffName(2));
         $this->assertEquals('Amy Hope', $this->salesTeam->getStaffName(4));
     }
+    
+    /**
+     * @covers \Staff\SalesTeam::listStaff
+     */
+    public function testListStaff(){
+        $staff = $this->salesTeam->listStaff();
+        $this->assertArrayHasKey('id', $staff[0]);
+        $this->assertArrayHasKey('fullname', $staff[0]);
+        $this->assertEquals(3, $staff[2]['id']);
+    }
 }
