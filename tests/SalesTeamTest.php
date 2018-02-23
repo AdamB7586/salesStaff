@@ -95,6 +95,7 @@ class SalesTeamTest extends TestCase{
     
     /**
      * @covers \Staff\SalesTeam::viewHours
+     * @covers \Staff\SalesTeam::getStaffName
      */
     public function testViewHours(){
         $this->markTestIncomplete();
