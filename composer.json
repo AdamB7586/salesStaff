@@ -1,6 +1,5 @@
 {
     "name": "adamb/salesstaff",
-    "version": "v1.0.0",
     "description": "A revolving list of sales staff to enable emails/sales to be distributed between sales staff based on hours of work",
     "type": "library",
     "require": {
