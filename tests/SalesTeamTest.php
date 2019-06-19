@@ -13,7 +13,7 @@ class SalesTeamTest extends TestCase{
     /**
      * @covers \Staff\SalesTeam::__construct
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->db = new Database($GLOBALS['HOSTNAME'], $GLOBALS['USERNAME'], $GLOBALS['PASSWORD'], $GLOBALS['DATABASE']);
         if(!$this->db->isConnected()){
              $this->markTestSkipped(
@@ -25,7 +25,7 @@ class SalesTeamTest extends TestCase{
         $this->salesTeam = new SalesTeam($this->db);
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->salesTeam = null;
     }
