@@ -75,7 +75,7 @@ class SalesTeam{
      */
     protected function getStaffInfo($where = [], $order = []){
         $staff = $this->db->select(self::STAFFTABLE, $where, '*', $order);
-        if($staff['staffid']){
+        if(isset($staff['staffid'])){
             $this->staffinfo = $staff;
             $this->staffinfo['id'] = $staff['staffid'];
             return $this->staffinfo;
@@ -89,7 +89,7 @@ class SalesTeam{
      * @return int Returns the sales staff ID of the person who should receive this transaction/enquiry 
      */
     protected function numActiveStaffToday($type){
-        $data = array();
+        $data = [];
         $dateInfo = $this->dayAndTime();        
         $activestaff = $this->db->selectAll(self::STAFFHOURSTABLE, [$dateInfo['day'] => ['>', $dateInfo['time']], 'holiday' => '0']);
         if($this->db->numRows() == 1){
