@@ -25,7 +25,7 @@ class SalesTeam{
      * @return int Returns the number of sales staff 
      */
     public function numStaff(){
-        return $this->db->count($this->StaffTable);
+        return $this->db->count($this->StaffTable, ['active' => 1]);
     }
     
     /**
