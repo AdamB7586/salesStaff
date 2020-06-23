@@ -7,8 +7,8 @@ class SalesTeam{
     protected $db;
     protected $staffinfo;
     
-    const STAFFTABLE = 'sales_staff';
-    const STAFFHOURSTABLE = 'sales_staff_hours';
+    public $StaffTable = 'sales_staff';
+    public $StaffHoursTable = 'sales_staff_hours';
     
     public $staffDefault = ['id' => 99, 'fullname' => 'Default Name', 'firstname' => 'Default', 'email' => 'staff.email@example.com'];
     
@@ -25,7 +25,7 @@ class SalesTeam{
      * @return int Returns the number of sales staff 
      */
     public function numStaff(){
-        return $this->db->count(self::STAFFTABLE);
+        return $this->db->count($this->StaffTable);
     }
     
     /**
@@ -35,20 +35,19 @@ class SalesTeam{
      */
     public function getActiveStaff($type = 'sale'){       
         if($this->numStaff() >= 1){
-            $activestaff = $this->numActiveStaffToday($type);
+            $activestaff = $this->nextActiveStaff($type);
             $updateName = 'updateLast'.$type;
             if($activestaff['next'] >= 1){
-                $staff = $this->getStaffInfo(['staffid' => $activestaff['next']]);
+                $staff = $this->getStaffInfo(['active' => 1, 'staffid' => $activestaff['next']]);
                 $this->$updateName($staff['id']);
                 return $staff;
             }
-             // Nobody active do them all
-            $staff = $this->getStaffInfo(['staffid' => ['>', $this->{'last'.$type.'ID'}]], ['staffid' => 'ASC']);
+            $staff = $this->getStaffInfo(['active' => 1, 'staffid' => ['>', $this->{'last'.$type.'ID'}]], ['staffid' => 'ASC']);
             if($staff['id'] != $this->staffDefault['id']){ // Not the last one so do the next
                 $this->$updateName($staff['id']);
                 return $staff;
             }
-            $newStaff = $this->getStaffInfo([], ['staffid' => 'ASC']); // Last one so start from beginning
+            $newStaff = $this->getStaffInfo(['active' => 1], ['staffid' => 'ASC']); // Last one so start from beginning
             $this->$updateName($newStaff['id']);
             return $newStaff;
         }
@@ -74,7 +73,7 @@ class SalesTeam{
      * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'staffid'
      */
     protected function getStaffInfo($where = [], $order = []){
-        $staff = $this->db->select(self::STAFFTABLE, $where, '*', $order);
+        $staff = $this->db->select($this->StaffTable, $where, '*', $order);
         if(isset($staff['staffid'])){
             $this->staffinfo = $staff;
             $this->staffinfo['id'] = $staff['staffid'];
@@ -88,62 +87,74 @@ class SalesTeam{
      * @param string $type Should be set as either enquiry or sale depending on what was kind of transaction the user is being search for
      * @return int Returns the sales staff ID of the person who should receive this transaction/enquiry 
      */
-    protected function numActiveStaffToday($type){
+    public function nextActiveStaff($type){
         $data = [];
-        $dateInfo = $this->dayAndTime();        
-        $activestaff = $this->db->selectAll(self::STAFFHOURSTABLE, [$dateInfo['day'] => ['>', $dateInfo['time']], 'holiday' => '0']);
-        if($this->db->numRows() == 1){
+        $activestaff = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid`AND `{$this->StaffHoursTable}`.`holiday` = 0;");
+        if(count($activestaff) == 1){
             $data['next'] = $activestaff[0]['staffid'];
         }
         else{
+            $dateInfo = $this->dayAndTime(strtolower(date('l')), date('H:i:s'));
             $lastMethod = 'last'.$type.'ID';
-            $nextactive = $this->db->select(self::STAFFHOURSTABLE, [$dateInfo['day'] => ['>', $dateInfo['time']], 'holiday' => '0', 'staffid' => ['>', $this->$lastMethod()]], ['staffid'], ['staffid' => 'ASC']);
-            if($nextactive['staffid']){
-                $data['next'] = $nextactive['staffid'];
+            $nextactive = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 AND `{$this->StaffHoursTable}`.`staffid` > ? ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC;", [$dateInfo['time'], $this->$lastMethod()]);
+            if(isset($nextactive[0]['staffid'])){
+                $data['next'] = $nextactive[0]['staffid'];
             }
             else{
-                $data['next'] = $this->db->select(self::STAFFHOURSTABLE, [$dateInfo['day'] => ['>', $dateInfo['time']], 'holiday' => '0'], ['staffid'], ['staffid' => 'ASC'])['staffid'];
+                $data['next'] = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC LIMIT 1;", [$dateInfo['time']])[0]['staffid'];
             }
         }
         return $data;
     }
     
     /**
-     * Gets the Day and Time to search for the active saleTeam member 
+     * Gets the Day and Time to search for the active saleTeam member
+     * @param string $day The day you are checking e.g 'monday', or 'saturday'
+     * @param string $time The current time of the day you are checking if anyone is active after
      * @return array Returns and array of both 'day' and 'time' to get the next active staff member
-     */
-    protected function dayAndTime(){
+     */   
+    public function dayAndTime($day, $time){
         $dateInfo = [];
-        $dateInfo['day'] = strtolower(date('l'));
-        $dateInfo['time'] = date('H:i:s');
-        
-        $endtime = $this->db->select(self::STAFFHOURSTABLE, [], [$dateInfo['day']], [$dateInfo['day'] => 'DESC'])[$dateInfo['day']];
-        if($dateInfo['time'] > $endtime){
-            $dateInfo['day'] = strtolower($this->dayNo((date("N")+1)));
-            $dateInfo['time'] = "01:00:00";
-            $endtime = $this->db->select(self::STAFFHOURSTABLE, [], [$dateInfo['day']], [$dateInfo['day'] => 'DESC'])[$dateInfo['day']];
+        $endtime = $this->db->query("SELECT `{$this->StaffHoursTable}`.`{$day}` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$day}` DESC LIMIT 1;");
+        if(!isset($endtime[0][$day]) || $time > $endtime[0][$day]){
+            return $this->dayAndTime($this->getDay($this->getDayNo($day) + 1), "00:00:01");
         }
-
-        if(($dateInfo['day'] == "Saturday" && $dateInfo['time'] > $endtime) || ($dateInfo['day'] == "Sunday")){
-            $dateInfo['day'] = strtolower("Monday");
-            $dateInfo['time'] = "01:00:00";
+        else{
+            $dateInfo['day'] = $day;
+            $dateInfo['time'] = $time;
         }
         return $dateInfo;
     }
-    
+
+
     /**
      * Returns the correct day to get the active staff member
      * @param int $num The number of the day to search
      * @return string returns the day name
      */
-    protected function dayNo($num){
-        if($num == 2){return "Tuesday";}
-        elseif($num == 3){return "Wednesday";}
-        elseif($num == 4){return "Thursday";}
-        elseif($num == 5){return "Friday";}
-        elseif($num == 6){return "Saturday";}
-        elseif($num == 7){return "Sunday";}
-        else{return "Monday";}
+    protected function getDay($num){
+        if($num == 2){return "tuesday";}
+        elseif($num == 3){return "wednesday";}
+        elseif($num == 4){return "thursday";}
+        elseif($num == 5){return "friday";}
+        elseif($num == 6){return "saturday";}
+        elseif($num == 7){return "sunday";}
+        else{return "monday";}
+    }
+    
+    /**
+     * Returns the day for the given day no
+     * @param string $day This should be the day of the week
+     * @return int Returns the allocated day no
+     */
+    protected function getDayNo($day){
+        if($day == 'monday'){return 1;}
+        elseif($day == 'tuesday'){return 2;}
+        elseif($day == 'wednesday'){return 3;}
+        elseif($day == 'thursday'){return 4;}
+        elseif($day == 'friday'){return 5;}
+        elseif($day == 'saturday'){return 6;}
+        else{return 0;}
     }
     
     /**
@@ -151,7 +162,7 @@ class SalesTeam{
      * @return array|boolean If staff members exist will return array else will return false
      */
     public function listStaff(){
-        return $this->db->selectAll(self::STAFFTABLE, [], ['staffid', 'fullname']);
+        return $this->db->selectAll($this->StaffTable, [], ['staffid', 'fullname']);
     }
     
     /**
@@ -173,7 +184,7 @@ class SalesTeam{
      * @return array|boolean Returns the hours in an array if the sales staff ID exists else returns false
      */
     public function getStaffHours($staffID){
-        return $this->db->select(self::STAFFHOURSTABLE, ['staffid' => $staffID]);
+        return $this->db->select($this->StaffHoursTable, ['staffid' => $staffID]);
     }
     
     /**
@@ -181,7 +192,7 @@ class SalesTeam{
      * @return array|boolean Returns array of all of the time information if there is anything else return false
      */
     public function viewHours(){
-        $hours = $this->db->selectAll(self::STAFFHOURSTABLE);
+        $hours = $this->db->selectAll($this->StaffHoursTable);
         if(!empty($hours)){
             foreach($hours as $a => $hour){
                 $hours[$a]['name'] = $this->getStaffName($hour['staffid']);
@@ -205,7 +216,7 @@ class SalesTeam{
      * @return boolean If successfully updated returns true else returns false
      */
     public function updateHours($staffID, $monday, $tuesday, $wednesday, $thursday, $friday, $saturday, $sunday, $holiday = 0){
-        return $this->db->update(self::STAFFHOURSTABLE, ['monday' => $monday, 'tuesday' => $tuesday, 'wednesday' => $wednesday, 'thursday' => $thursday, 'friday' => $friday, 'saturday' => $saturday, 'sunday' => $sunday, 'holiday' => $holiday], ['staffid' => $staffID]);
+        return $this->db->update($this->StaffHoursTable, ['monday' => $monday, 'tuesday' => $tuesday, 'wednesday' => $wednesday, 'thursday' => $thursday, 'friday' => $friday, 'saturday' => $saturday, 'sunday' => $sunday, 'holiday' => $holiday], ['staffid' => $staffID]);
     }
     
     /**
@@ -214,7 +225,7 @@ class SalesTeam{
      * @return int This will be the sales staff ID
      */
     protected function getLastID($field){
-        $last = $this->db->select(self::STAFFTABLE, [$field => 1], ['staffid']);
+        $last = $this->db->select($this->StaffTable, [$field => 1], ['staffid']);
         return $last['staffid'];
     }
     
@@ -225,8 +236,8 @@ class SalesTeam{
      * @return boolean If the information is updated will return true else return false
      */
     protected function updateLastUser($current, $field){
-        $this->db->update(self::STAFFTABLE, [$field => 0]);
-        return $this->db->update(self::STAFFTABLE, [$field => 1], ['staffid' => $current]);
+        $this->db->update($this->StaffTable, [$field => 0]);
+        return $this->db->update($this->StaffTable, [$field => 1], ['staffid' => $current]);
     }
     
     /**
