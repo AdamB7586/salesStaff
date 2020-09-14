@@ -89,7 +89,7 @@ class SalesTeam{
      */
     public function nextActiveStaff($type){
         $data = [];
-        $activestaff = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid`AND `{$this->StaffHoursTable}`.`holiday` = 0;");
+        $activestaff = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`holiday` = 0;");
         if(count($activestaff) == 1){
             $data['next'] = $activestaff[0]['staffid'];
         }
