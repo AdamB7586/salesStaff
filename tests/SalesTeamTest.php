@@ -5,7 +5,8 @@ use Staff\SalesTeam;
 use DBAL\Database;
 use PHPUnit\Framework\TestCase;
 
-class SalesTeamTest extends TestCase{
+class SalesTeamTest extends TestCase
+{
     
     protected $db;
     protected $salesTeam;
@@ -13,19 +14,21 @@ class SalesTeamTest extends TestCase{
     /**
      * @covers \Staff\SalesTeam::__construct
      */
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->db = new Database($GLOBALS['HOSTNAME'], $GLOBALS['USERNAME'], $GLOBALS['PASSWORD'], $GLOBALS['DATABASE']);
-        if(!$this->db->isConnected()){
+        if (!$this->db->isConnected()) {
              $this->markTestSkipped(
-                'No local database connection is available'
-            );
+                 'No local database connection is available'
+             );
         }
         $this->db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/sales_staff.sql'));
         $this->db->query(file_get_contents(dirname(__FILE__).'/sample_data/staff.sql'));
         $this->salesTeam = new SalesTeam($this->db);
     }
     
-    protected function tearDown(): void {
+    protected function tearDown(): void
+    {
         $this->db = null;
         $this->salesTeam = null;
     }
@@ -34,7 +37,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::numStaff
      */
-    public function testCountNumberOfSalesStaff(){
+    public function testCountNumberOfSalesStaff()
+    {
         $this->assertGreaterThanOrEqual(0, $this->salesTeam->numStaff());
     }
     
@@ -42,7 +46,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::getStaffName
      */
-    public function testGetStaffName(){
+    public function testGetStaffName()
+    {
         $this->assertEquals('George Michael', $this->salesTeam->getStaffName(2));
         $this->assertEquals('Amy Hope', $this->salesTeam->getStaffName(4));
         $this->assertFalse($this->salesTeam->getStaffName(1526));
@@ -52,7 +57,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::listStaff
      */
-    public function testListStaff(){
+    public function testListStaff()
+    {
         $staff = $this->salesTeam->listStaff();
         $this->assertArrayHasKey('staffid', $staff[1]);
         $this->assertArrayHasKey('fullname', $staff[0]);
@@ -63,7 +69,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::__construct
      * @covers \Staff\SalesTeam::getStaffHours
      */
-    public function testGetStaffHours(){
+    public function testGetStaffHours()
+    {
         $this->assertFalse($this->salesTeam->getStaffHours(52));
         $staff_hours = $this->salesTeam->getStaffHours(3);
         $this->assertArrayHasKey('monday', $staff_hours);
@@ -87,7 +94,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::getLastID
      * @covers \Staff\SalesTeam::updateLastUser
      */
-    public function testGetActiveStaff(){
+    public function testGetActiveStaff()
+    {
         $activeStaff = $this->salesTeam->getActiveStaff();
         $this->assertArrayHasKey('staffid', $activeStaff);
         $this->assertEquals(1, $activeStaff['staffid']);
@@ -97,14 +105,16 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::viewHours
      * @covers \Staff\SalesTeam::getStaffName
      */
-    public function testViewHours(){
+    public function testViewHours()
+    {
         $this->markTestIncomplete();
     }
     
     /**
      * @covers \Staff\SalesTeam::updateHours
      */
-    public function testUpdateHours(){
+    public function testUpdateHours()
+    {
         $this->markTestIncomplete();
     }
     
@@ -121,7 +131,8 @@ class SalesTeamTest extends TestCase{
      * @covers \Staff\SalesTeam::getLastID
      * @covers \Staff\SalesTeam::updateLastUser
      */
-    public function testDisableAllStaff(){
+    public function testDisableAllStaff()
+    {
         $this->markTestIncomplete();
     }
 }
