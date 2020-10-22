@@ -2,7 +2,6 @@
 -- Table structure for table `sales_staff`
 --
 
-DROP TABLE IF EXISTS `sales_staff`;
 CREATE TABLE IF NOT EXISTS `sales_staff` (
   `staffid` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT,
   `fullname` varchar(100) NOT NULL,
@@ -24,7 +23,6 @@ CREATE TABLE IF NOT EXISTS `sales_staff` (
 -- Table structure for table `sales_staff_hours`
 --
 
-DROP TABLE IF EXISTS `sales_staff_hours`;
 CREATE TABLE IF NOT EXISTS `sales_staff_hours` (
   `staffid` mediumint(8) UNSIGNED NOT NULL,
   `monday` time DEFAULT NULL,

@@ -11,7 +11,8 @@ class SalesTeam
     public $StaffTable = 'sales_staff';
     public $StaffHoursTable = 'sales_staff_hours';
     
-    public $staffDefault = ['id' => 99, 'fullname' => 'Default Name', 'firstname' => 'Default', 'email' => 'staff.email@example.com'];
+    public $days = [1 => 'monday', 2 => "tuesday", 3 => "wednesday", 4 => "thursday", 5 => "friday", 6 => "saturday", 7 => "sunday"];
+    public $staffDefault = ['id' => 99, 'staffid' => 99, 'fullname' => 'Default Name', 'firstname' => 'Default', 'email' => 'staff.email@example.com'];
     
     /**
      * This class is used for use with the sales team members
@@ -75,7 +76,7 @@ class SalesTeam
      * Returns the staff information for the given variables
      * @param array $where Should be in the form of a where query e.g. array('active' => '1', etc)
      * @param array $order Should be in the form of a order query e.g. array('staffid' => 'ASC')
-     * @return array Returns the Staff members information as an array includes 'fullname', 'firstname', 'email' and 'staffid'
+     * @return array Returns the Staff members information as an array includes 'id', 'fullname', 'firstname', 'email' and 'staffid'
      */
     protected function getStaffInfo($where = [], $order = [])
     {
@@ -139,21 +140,10 @@ class SalesTeam
      */
     protected function getDay($num)
     {
-        if ($num == 2) {
-            return "tuesday";
-        } elseif ($num == 3) {
-            return "wednesday";
-        } elseif ($num == 4) {
-            return "thursday";
-        } elseif ($num == 5) {
-            return "friday";
-        } elseif ($num == 6) {
-            return "saturday";
-        } elseif ($num == 7) {
-            return "sunday";
-        } else {
-            return "monday";
+        if (array_key_exists($num, $this->days)) {
+            return $this->days[$num];
         }
+        return $this->days[1];
     }
     
     /**
@@ -163,21 +153,11 @@ class SalesTeam
      */
     protected function getDayNo($day)
     {
-        if ($day == 'monday') {
-            return 1;
-        } elseif ($day == 'tuesday') {
-            return 2;
-        } elseif ($day == 'wednesday') {
-            return 3;
-        } elseif ($day == 'thursday') {
-            return 4;
-        } elseif ($day == 'friday') {
-            return 5;
-        } elseif ($day == 'saturday') {
-            return 6;
-        } else {
+        $dayNo = array_search($day, $this->days);
+        if (!$dayNo || $dayNo > 6) {
             return 0;
         }
+        return $dayNo;
     }
     
     /**
@@ -255,7 +235,10 @@ class SalesTeam
     protected function getLastID($field)
     {
         $last = $this->db->select($this->StaffTable, [$field => 1], ['staffid']);
-        return $last['staffid'];
+        if(is_array($last)){
+            return $last['staffid'];
+        }
+        return 0;
     }
     
     /**
