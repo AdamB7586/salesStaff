@@ -29,7 +29,7 @@ class SalesTeam
      */
     public function numStaff()
     {
-        return $this->db->count($this->StaffTable, ['active' => 1]);
+        return $this->db->count($this->StaffTable, ['active' => 1], 3600);
     }
     
     /**
@@ -80,7 +80,7 @@ class SalesTeam
      */
     protected function getStaffInfo($where = [], $order = [])
     {
-        $staff = $this->db->select($this->StaffTable, $where, '*', $order);
+        $staff = $this->db->select($this->StaffTable, $where, '*', $order, 0, 3600);
         if (isset($staff['staffid'])) {
             $this->staffinfo = $staff;
             $this->staffinfo['id'] = $staff['staffid'];
@@ -97,17 +97,17 @@ class SalesTeam
     public function nextActiveStaff($type)
     {
         $data = [];
-        $activestaff = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`holiday` = 0;");
+        $activestaff = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`holiday` = 0;", [], false);
         if (count($activestaff) == 1) {
             $data['next'] = $activestaff[0]['staffid'];
         } else {
             $dateInfo = $this->dayAndTime(strtolower(date('l')), date('H:i:s'));
             $lastMethod = 'last'.$type.'ID';
-            $nextactive = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 AND `{$this->StaffHoursTable}`.`staffid` > ? ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC;", [$dateInfo['time'], $this->$lastMethod()]);
+            $nextactive = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 AND `{$this->StaffHoursTable}`.`staffid` > ? ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC;", [$dateInfo['time'], $this->$lastMethod()], false);
             if (isset($nextactive[0]['staffid'])) {
                 $data['next'] = $nextactive[0]['staffid'];
             } else {
-                $data['next'] = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC LIMIT 1;", [$dateInfo['time']])[0]['staffid'];
+                $data['next'] = $this->db->query("SELECT `{$this->StaffHoursTable}`.`staffid` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffTable}`.`staffid` = `{$this->StaffHoursTable}`.`staffid` AND `{$this->StaffHoursTable}`.`{$dateInfo['day']}` > ? AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$this->StaffHoursTable}`.`staffid` ASC LIMIT 1;", [$dateInfo['time']], false)[0]['staffid'];
             }
         }
         return $data;
@@ -122,7 +122,7 @@ class SalesTeam
     public function dayAndTime($day, $time)
     {
         $dateInfo = [];
-        $endtime = $this->db->query("SELECT `{$this->StaffHoursTable}`.`{$day}` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$day}` DESC LIMIT 1;");
+        $endtime = $this->db->query("SELECT `{$this->StaffHoursTable}`.`{$day}` FROM `{$this->StaffHoursTable}`, `{$this->StaffTable}` WHERE `{$this->StaffTable}`.`active` = 1 AND `{$this->StaffHoursTable}`.`holiday` = 0 ORDER BY `{$day}` DESC LIMIT 1;", [], 600);
         if (!isset($endtime[0][$day]) || $time > $endtime[0][$day]) {
             return $this->dayAndTime($this->getDay($this->getDayNo($day) + 1), "00:00:01");
         } else {
@@ -166,7 +166,7 @@ class SalesTeam
      */
     public function listStaff()
     {
-        return $this->db->selectAll($this->StaffTable, [], ['staffid', 'fullname']);
+        return $this->db->selectAll($this->StaffTable, [], ['staffid', 'fullname'], [], 0, 3600);
     }
     
     /**
@@ -190,7 +190,7 @@ class SalesTeam
      */
     public function getStaffHours($staffID)
     {
-        return $this->db->select($this->StaffHoursTable, ['staffid' => $staffID]);
+        return $this->db->select($this->StaffHoursTable, ['staffid' => $staffID], '*', [], 600);
     }
     
     /**
@@ -199,7 +199,7 @@ class SalesTeam
      */
     public function viewHours()
     {
-        $hours = $this->db->selectAll($this->StaffHoursTable);
+        $hours = $this->db->selectAll($this->StaffHoursTable, [], '*', [], 0, 600);
         if (!empty($hours)) {
             foreach ($hours as $a => $hour) {
                 $hours[$a]['name'] = $this->getStaffName($hour['staffid']);
@@ -234,7 +234,7 @@ class SalesTeam
      */
     protected function getLastID($field)
     {
-        $last = $this->db->select($this->StaffTable, [$field => 1], ['staffid']);
+        $last = $this->db->select($this->StaffTable, [$field => 1], ['staffid'], [], false);
         if(is_array($last)){
             return $last['staffid'];
         }
